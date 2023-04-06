@@ -1,0 +1,308 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <vector>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+string ImparteCarte();
+bool VerificaDuble(string mana[], string oCarte);
+void ImparteMana(string mana[]);
+void SchimbaCarti(string mana[]);
+void convertToInt(string mana[], int NumarMana[2][5]);
+string GasesteCastigatorul(string mana[]);
+
+int main()
+{
+
+    srand(time(NULL));
+
+
+    int option = 0;
+    bool stop = false;
+
+    while(stop != true)
+    {
+        cout << "*********" << endl;
+        cout << "~~POKER~~" << endl;
+        cout << "*********" << endl << endl;
+        cout << "1. Joaca" << endl;
+        cout << "2. Iesire" << endl << endl;
+        cout << "Alege o optiune: ";
+        cin >> option;
+
+        if(option != 2) {
+
+            string mana[5] = {"", "", "", "", ""};
+            ImparteMana(mana);
+            for(int i = 0; i < 5; i++)
+                cout << endl << (i + 1) << " - " << mana[i];
+
+
+            char DaSauNu;
+            cout << endl << endl << "Vrei sa schimbi cartile? (d/n): ";
+            cin >> DaSauNu;
+            if(DaSauNu == 'd') {
+                SchimbaCarti(mana);
+                cout << endl << "Noile tale carti:" << endl;
+                for(int i = 0; i < 5; i++)
+                    cout << (i + 1) << " - " << mana[i] << endl;
+                cout << endl;
+            }
+
+
+            cout << endl << GasesteCastigatorul(mana) << endl;
+
+
+            cin.ignore(256, '\n');
+            cout << endl << "Apasa tasta ENTER pentru a continua...";
+            cin.get();
+            system("CLS");
+        } else {
+            stop = true;
+        }
+    }
+
+    return 0;
+}
+
+string ImparteCarte()
+{
+    string carte;
+
+    int aSuit = (rand() % (4 - 1 + 1)) + 1;
+    int oCarte = (rand() % (13 - 1 + 1)) + 1;
+
+    string face;
+
+    switch(aSuit)
+    {
+        case 1: face = " de Inima Rosie"; break;
+        case 2: face = " de Inima Neagra"; break;
+        case 3: face = " de Romb"; break;
+        case 4: face = " de Trefla"; break;
+    }
+
+    string valoare;
+
+    switch(oCarte)
+    {
+        case 1: valoare = "As"; break;
+        case 2: valoare = "2"; break;
+        case 3: valoare = "3"; break;
+        case 4: valoare = "4"; break;
+        case 5: valoare = "5"; break;
+        case 6: valoare = "6"; break;
+        case 7: valoare = "7"; break;
+        case 8: valoare = "8"; break;
+        case 9: valoare = "9"; break;
+        case 10: valoare = "10"; break;
+        case 11: valoare = "Juvete"; break;
+        case 12: valoare = "Dama"; break;
+        case 13: valoare = "Popa"; break;
+    }
+
+    carte = (valoare + face);
+
+    return carte;
+}
+
+
+bool VerificaDuble(string mana[], string oCarte)
+{
+    bool duplicate = false;
+
+    for(int i = 0; i < 5; i++) {
+        if(mana[i] == oCarte)
+            duplicate = true;
+    }
+
+    return duplicate;
+}
+
+
+void ImparteMana(string mana[])
+{
+    for(int i = 0; i < 5; i++) {
+        string j = ImparteCarte();
+        if(VerificaDuble(mana, j) == true)
+            i--;
+        else
+            mana[i] = j;
+    }
+}
+
+
+void SchimbaCarti(string mana[])
+{
+    char DaSauNu;
+
+    for(int i = 0; i < 5; i++) {
+        cout << "Schimba cartea " << (i + 1) << "? (d/n): ";
+        cin.ignore(256, '\n');
+        cin >> DaSauNu;
+
+        if(DaSauNu == 'd') {
+            string j;
+            do {
+                j = ImparteCarte();
+            } while(VerificaDuble(mana, j) == true);
+            mana[i] = j;
+        } else {
+            continue;
+        }
+    }
+}
+
+
+void convertToInt(string mana[], int NumarMana[2][5])
+{
+    stringstream stream;
+
+    for(int i = 0; i < 5; i++) {
+        if(mana[i].substr(0, 2) == "10") {
+            NumarMana[0][i] = 10;
+        } else if(mana[i].substr(0, 1) == "A") {
+            NumarMana[0][i] = 1;
+        } else if(mana[i].substr(0, 1) == "J") {
+            NumarMana[0][i] = 11;
+        } else if(mana[i].substr(0, 1) == "Q") {
+            NumarMana[0][i] = 12;
+        } else if(mana[i].substr(0, 1) == "K") {
+            NumarMana[0][i] = 13;
+        } else {
+            stream << mana[i].substr(0, 1);
+            stream >> NumarMana[0][i];
+            stream.str("");
+            stream.clear();
+        }
+    }
+
+    enum {INIMAROSIE, INIMANEAGRA, ROMB, TREFLA};
+
+    for(int i = 0; i < 5; i++) {
+        if(mana[i].find("Inima rosie") != -1) {
+            NumarMana[1][i] = INIMAROSIE;
+        } else if(mana[i].find("Inima neagra") != -1) {
+            NumarMana[1][i] = INIMANEAGRA;
+        } else if(mana[i].find("Romb") != -1) {
+            NumarMana[1][i] = ROMB;
+        } else {
+            NumarMana[1][i] = TREFLA;
+        }
+    }
+}
+
+
+string GasesteCastigatorul(string mana[])
+{
+    string result = "Scuze, mult noroc data viitoare!";
+
+    bool straightFlush = false;
+    bool fourOfAKind = false;
+    bool fullHouse = false;
+    bool flush = false;
+    bool straight = false;
+    bool threeOfAKind = false;
+    bool twoPair = false;
+    bool onePair = false;
+
+    enum {
+        PAIR = 1,
+        TWO_PAIR,
+        THREE_OF_A_KIND,
+        FULL_HOUSE,
+        FOUR_OF_A_KIND = 6
+    };
+
+    int carti[2][5];
+    convertToInt(mana, carti);
+
+
+    vector<int> castigatori(0);
+    for(int i = 0; i < 4; i++) {
+        for(int j = i; j < 4; j++) {
+            if(carti[0][i] == carti[0][j + 1])
+                castigatori.push_back(carti[0][i]);
+        }
+    }
+    if(castigatori.size() == FOUR_OF_A_KIND)
+        fourOfAKind = true;
+    else if(castigatori.size() == FULL_HOUSE)
+        fullHouse = true;
+    else if(castigatori.size() == THREE_OF_A_KIND)
+        threeOfAKind = true;
+    else if(castigatori.size() == TWO_PAIR)
+        twoPair = true;
+    else if(castigatori.size() == PAIR)
+        onePair = true;
+
+
+    vector<int> OrdineaCartilor(0);
+    for(int i = 0; i < 5; i++)
+        OrdineaCartilor.push_back(carti[0][i]);
+
+    bool swapped = true;
+    int j = 0;
+    int tmp;
+    while(swapped) {
+        swapped = false;
+        j++;
+        for(int i = 0; i < (OrdineaCartilor.size() - j); i++) {
+            if(OrdineaCartilor[i] > OrdineaCartilor[i + 1]) {
+                tmp = OrdineaCartilor[i];
+                OrdineaCartilor[i] = OrdineaCartilor[i + 1];
+                OrdineaCartilor[i + 1] = tmp;
+                swapped = true;
+            }
+        }
+    }
+    int checkStraight = OrdineaCartilor.back();
+    while(checkStraight != OrdineaCartilor.front()) {
+        checkStraight--;
+    }
+    if(checkStraight == (OrdineaCartilor.back() - (OrdineaCartilor.size() - 1))) {
+        straight = true;
+    } else if((OrdineaCartilor[0] == 1) &&
+            (OrdineaCartilor[1] == 10) &&
+            (OrdineaCartilor[2] == 11) &&
+            (OrdineaCartilor[3] == 12) &&
+            (OrdineaCartilor[4] == 13)) {
+                straight = true;
+    }
+
+
+    for(int i = 0; i < 4; i++) {
+        if(carti[1][i] == carti[1][i + 1]) {
+            flush = true;
+        } else {
+            flush = false;
+            break;
+        }
+    }
+
+
+    if((straight == true) && (flush == true))
+        straightFlush = true;
+
+    if(straightFlush == true)
+        result = "Aveti o Chinta de Culoare!";
+    else if(fourOfAKind == true)
+        result = "Aveti un Careu!";
+    else if(fullHouse == true)
+        result = "Aveti Full House!";
+    else if(flush == true)
+        result = "Aveti o Culoare!";
+    else if(straight == true)
+        result = "Aveti o Chinta!";
+    else if(threeOfAKind == true)
+        result = "Aveti Trei de un Fel!";
+    else if(twoPair == true)
+        result = "Aveti o Pereche de Doua!";
+    else if(onePair == true)
+        result = "Aveti o Pereche!";
+
+    return result;
+}
